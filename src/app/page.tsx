@@ -15,8 +15,10 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const gravity = 5;
-  const jump = 55;
+  const [health, setHealth] = useState(100);
+
+  const gravity = 4;
+  const jump = 50;
   const pipeGap = 150;
   const pipeWidth = 70;
   const gameWidth = 400;
@@ -73,13 +75,29 @@ export default function Home() {
           .map(pipe => {
             const newX = pipe.x - 4;
             if (newX + pipeWidth === 50) {
-              setScore(prevScore => prevScore + .5);
+              setScore(prevScore => prevScore + 0.5);
             }
             return { ...pipe, x: newX };
           })
           .filter(pipe => pipe.x + pipeWidth > 0)
       );
     }, 30);
+    return () => clearInterval(interval);
+  }, [isRunning, isGameOver]);
+
+  useEffect(() => {
+    if (!isRunning || isGameOver) return;
+    const interval = setInterval(() => {
+      setHealth(prev => {
+        const next = prev - 2;
+        if (next <= 0) {
+          setIsGameOver(true);
+          setIsRunning(false);
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(interval);
   }, [isRunning, isGameOver]);
 
@@ -101,6 +119,7 @@ export default function Home() {
     setBirdY(200);
     setPipes([]);
     setScore(0);
+    setHealth(100);
     setIsGameOver(false);
     setIsRunning(false);
   };
@@ -112,22 +131,15 @@ export default function Home() {
 
       {pipes.map(pipe => (
         <div key={pipe.id}>
-          <div
-            className="pipe"
-            style={{
-              left: pipe.x,
-              height: pipe.height,
-              top: 0,
-            }}
-          />
-          <div
-            className="pipe"
-            style={{
-              left: pipe.x,
-              top: pipe.height + pipeGap,
-              height: gameHeight - pipe.height - pipeGap,
-            }}
-          />
+          <div className="pipe" style={{ left: pipe.x, top: 0 }}>
+            <div className="pipe-cap pipe-cap-top" />
+            <div className="pipe-body" style={{ height: pipe.height }} />
+          </div>
+
+          <div className="pipe" style={{ left: pipe.x, top: pipe.height + pipeGap }}>
+            <div className="pipe-body" style={{ height: gameHeight - pipe.height - pipeGap }} />
+            <div className="pipe-cap pipe-cap-bottom" />
+          </div>
         </div>
       ))}
 
@@ -142,6 +154,11 @@ export default function Home() {
           <button onClick={handleRestart}>Zagraj ponownie</button>
         </div>
       )}
+
+      <div className="health-bar">
+        <div className="health-fill" style={{ width: `${health}%` }}></div>
+        <div className="health-text">{health}%</div>
+      </div>
     </div>
   );
 }
