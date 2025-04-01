@@ -30,6 +30,7 @@ export default function Home() {
   const [maxScore, setMaxScore] = useState(0);
   const [health, setHealth] = useState(100);
   const [showShop, setShowShop] = useState(false);
+  const [hasRewarded, setHasRewarded] = useState(false);
 
   const [upgrades, setUpgrades] = useState({
     fastJump: false,
@@ -156,19 +157,20 @@ export default function Home() {
   }, [birdY, pipes, isRunning, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver) {
+    if (isGameOver && !hasRewarded) {
       const earned = Math.round(score * 0.2 * 10) / 10;
       const updatedMoney = parseFloat((money + earned).toFixed(1));
       const newMax = Math.max(score, maxScore);
   
       setMoney(updatedMoney);
       setMaxScore(newMax);
+      setHasRewarded(true); // ✅ ustaw flagę
   
       Cookies.set('money', updatedMoney.toString());
       Cookies.set('maxScore', newMax.toString());
       Cookies.set('healthUpgrades', healthUpgradeCount.toString());
     }
-  }, [isGameOver, score, money, maxScore, healthUpgradeCount]);
+  }, [isGameOver, hasRewarded]);
 
   const handleRestart = () => {
     setBirdY(200);
@@ -177,6 +179,7 @@ export default function Home() {
     setHealth(100 + healthUpgradeCount * 10);
     setIsGameOver(false);
     setIsRunning(false);
+    setHasRewarded(false);
   };
 
   const buyHealthUpgrade = () => {
