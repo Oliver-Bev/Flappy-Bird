@@ -118,7 +118,7 @@ export default function Home() {
         prev.map(pipe => {
           const newX = pipe.x - pipeSpeed;
           if (newX + pipeWidth === 50) {
-            setScore(prevScore => prevScore + 0.5);
+            setScore(prevScore => prevScore + 1);
           }
           return { ...pipe, x: newX };
         }).filter(pipe => pipe.x + pipeWidth > 0)
