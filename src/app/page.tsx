@@ -11,6 +11,14 @@ interface Pipe {
   height: number;
 }
 
+type Upgrades = {
+  fastJump: boolean;
+  smallBird: boolean;
+  slowPipes: boolean;
+  birdColor: string;
+  ownedColors: string[];
+};
+
 export default function Home() {
   const [birdY, setBirdY] = useState(200);
   const [pipes, setPipes] = useState<Pipe[]>([]);
@@ -49,7 +57,7 @@ export default function Home() {
     }
   }, []);
 
-  const updateUpgrades = (newUp: any) => {
+  const updateUpgrades = (newUp: Upgrades) => {
     setUpgrades(newUp);
     Cookies.set('upgrades', JSON.stringify(newUp));
   };
@@ -152,13 +160,15 @@ export default function Home() {
       const earned = Math.round(score * 0.2 * 10) / 10;
       const updatedMoney = parseFloat((money + earned).toFixed(1));
       const newMax = Math.max(score, maxScore);
+  
       setMoney(updatedMoney);
       setMaxScore(newMax);
+  
       Cookies.set('money', updatedMoney.toString());
       Cookies.set('maxScore', newMax.toString());
       Cookies.set('healthUpgrades', healthUpgradeCount.toString());
     }
-  }, [isGameOver]);
+  }, [isGameOver, score, money, maxScore, healthUpgradeCount]);
 
   const handleRestart = () => {
     setBirdY(200);
